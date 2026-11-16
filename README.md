@@ -154,9 +154,9 @@ Forge can also be called from another workflow:
 ```yaml
 jobs:
   forge:
-    uses: zackees/forge/.github/workflows/forge-conan.yml@main
+    uses: forge-ci/forge/.github/workflows/forge-conan.yml@main
     with:
-      recipe_repo: zackees/forge
+      recipe_repo: forge-ci/forge
       recipe_ref: main
       recipe_path: examples/hello
       name: hello
