@@ -202,7 +202,7 @@ jobs:
       - name: Checkout forge
         uses: actions/checkout@v4
         with:
-          repository: zackees/forge
+          repository: forge-ci/forge
           path: forge
 
       - name: Checkout recipe
@@ -265,7 +265,7 @@ jobs:
       - name: Checkout forge
         uses: actions/checkout@v4
         with:
-          repository: zackees/forge
+          repository: forge-ci/forge
           path: forge
 
       - name: Checkout recipe
