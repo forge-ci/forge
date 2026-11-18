@@ -371,7 +371,7 @@ jobs:
               # The OpenSSL Configure script (a common transitive dependency) needs
               # Perl modules the manylinux images do not ship.
               yum install -y -q perl-core gnupg2 zstd
-              "$PYTHON" -m pip install --root-user-action=ignore "conan==${{ env.CONAN_VERSION }}" zstandard
+              "$PYTHON" -m pip install --root-user-action=ignore "conan==${{ env.CONAN_VERSION }}" zstandard "cmake==3.31.10" "ninja==1.11.1.4"
               export PATH="/opt/python/cp312-cp312/bin:$PATH"
               conan --version
               "${PYTHON}" forge/scripts/conan_build.py
