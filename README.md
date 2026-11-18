@@ -240,3 +240,22 @@ that branch as `--ref`, a compatible recipe (for example `examples/python-abi310
 and all desired platform booleans explicitly set. Separate dispatch events
 create separate runs; the two reported November 4 failures were separate
 dispatches for the x64 and arm64 Darwin libuuid recipes.
+
+### Cross producers and newer SDK extraction hosts
+
+`macos_arm64_runner` accepts `macos-15` (default) or `macos-26`. Select
+`macos-26` when extracting SDK 26.x from a suitable Xcode. This changes only the
+ARM64 macOS worker; Linux and other native lanes keep their original runners.
+
+`recipe_selection=exact` preserves the requested recipe name/path for an
+explicit cross producer, such as compiler-rt-darwin-arm64 running on Linux or
+an LLVM archive repackager. The recipe still validates its host settings and
+payload. Default `platform` selection continues to require real native sibling
+recipes. Exact mode rejects a missing conanfile before invoking Conan.
+
+Coordinated with soldr-toolchain#221 and the hosted Darwin producer follow-up.
+
+The GNU producer image installs GnuPG/zstd plus pinned CMake 3.31.10 and Ninja
+1.11.1.4, so signed toolchain recipes and LLVM source builds have the same
+prerequisites as ordinary Conan producers. These are producer tools; the
+package's own ELF floor remains measured.
