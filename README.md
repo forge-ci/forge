@@ -254,3 +254,8 @@ payload. Default `platform` selection continues to require real native sibling
 recipes. Exact mode rejects a missing conanfile before invoking Conan.
 
 Coordinated with soldr-toolchain#221 and the hosted Darwin producer follow-up.
+
+The GNU producer image installs GnuPG/zstd plus pinned CMake 3.31.10 and Ninja
+1.11.1.4, so signed toolchain recipes and LLVM source builds have the same
+prerequisites as ordinary Conan producers. These are producer tools; the
+package's own ELF floor remains measured.

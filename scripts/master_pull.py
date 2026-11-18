@@ -190,6 +190,8 @@ def main() -> None:
     parser.add_argument("--macos-arm64-runner", default=os.environ.get("MACOS_ARM64_RUNNER", "macos-15"), choices=("macos-15", "macos-26"))
     parser.add_argument("--recipe-selection", default=os.environ.get("RECIPE_SELECTION", "platform"), choices=("platform", "exact"))
     args = parser.parse_args()
+    if args.macos_arm64_runner not in ("macos-15", "macos-26"):
+        parser.error("macos_arm64_runner must be macos-15 or macos-26")
     floor = glibc_floor(args.glibc_floor)
     option_args = [arg for opt in args.options.split() for arg in ("-o", opt)]
 
