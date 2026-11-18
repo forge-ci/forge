@@ -39,3 +39,8 @@ def test_workflow_forwards_new_planning_inputs():
     assert text.count("      recipe_selection:") == 2
     assert "MACOS_ARM64_RUNNER: ${{ inputs.macos_arm64_runner }}" in text
     assert "RECIPE_SELECTION: ${{ inputs.recipe_selection }}" in text
+
+
+def test_floor_worker_installs_pinned_source_build_tools():
+    text = (ROOT / '.github/workflows/forge-conan.yml').read_text()
+    assert '"cmake==3.31.10" "ninja==1.11.1.4"' in text
