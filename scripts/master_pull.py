@@ -108,9 +108,13 @@ def glibc_floor(value: str | None) -> str:
     return floor
 
 
-def worker_row(config: dict, floor: str) -> dict:
+def worker_row(config: dict, floor: str, macos_runner: str = "macos-15") -> dict:
     """Matrix row for a worker; every row carries container and glibc_floor."""
+    if macos_runner not in ("macos-15", "macos-26"):
+        raise SystemExit("macos_arm64_runner must be macos-15 or macos-26")
     row = dict(config)
+    if row["platform"] == "macos-arm64":
+        row["runner"] = macos_runner
     if row.get("libc") == "glibc":
         row["container"] = LINUX_CONTAINERS[floor][row["conan_arch"]]
         row["glibc_floor"] = floor
@@ -120,8 +124,14 @@ def worker_row(config: dict, floor: str) -> dict:
     return row
 
 
-def select_recipe(name: str, recipe_path: str, config: dict) -> dict:
+def select_recipe(name: str, recipe_path: str, config: dict, selection: str = "platform") -> dict:
     """Route platform-suffixed recipes to a real sibling, never relabel one."""
+    if selection not in ("platform", "exact"):
+        raise SystemExit("recipe_selection must be platform or exact")
+    if selection == "exact":
+        if not (Path(recipe_path) / "conanfile.py").is_file():
+            raise SystemExit(f"missing exact producer recipe: {recipe_path}")
+        return {"recipe_name": name, "recipe_path": recipe_path}
     suffix = re.search(r"-(darwin|linux|windows)-(x64|arm64)(-gnu|-musl)?$", name)
     if suffix is None:
         return {"recipe_name": name, "recipe_path": recipe_path}
@@ -177,6 +187,8 @@ def main() -> None:
         default=os.environ.get("CONAN_OPTIONS", ""),
         help="whitespace-separated Conan options, each passed as -o",
     )
+    parser.add_argument("--macos-arm64-runner", default=os.environ.get("MACOS_ARM64_RUNNER", "macos-15"), choices=("macos-15", "macos-26"))
+    parser.add_argument("--recipe-selection", default=os.environ.get("RECIPE_SELECTION", "platform"), choices=("platform", "exact"))
     args = parser.parse_args()
     floor = glibc_floor(args.glibc_floor)
     option_args = [arg for opt in args.options.split() for arg in ("-o", opt)]
@@ -187,7 +199,7 @@ def main() -> None:
 
     # Resolve all lanes before invoking Conan, including delegated Linux lanes.
     enabled_platforms = [
-        {**config, **select_recipe(args.name, args.recipe_path, config)}
+        {**config, **select_recipe(args.name, args.recipe_path, config, args.recipe_selection)}
         for config in enabled_platforms
     ]
 
@@ -261,7 +273,7 @@ def main() -> None:
         tar_directory(package_output.parent, archive_path)
         print(f"{platform}: uploaded from prebuilt package cache")
 
-    matrix = {"include": [worker_row(config, floor) for config in missing]}
+    matrix = {"include": [worker_row(config, floor, args.macos_arm64_runner) for config in missing]}
     write_output("matrix", json.dumps(matrix, separators=(",", ":")))
     write_output("has_builds", "true" if missing else "false")
 
