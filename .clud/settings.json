@@ -1,0 +1,7 @@
+{
+  "pr_checks": {
+    "commands": [
+      "uv run --no-project --python 3.12 --with basedpyright==1.38.1 --with pyyaml basedpyright scripts/"
+    ]
+  }
+}
